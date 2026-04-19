@@ -7,7 +7,7 @@ class DatabaseSettings(BaseSettings):
     database_url: Optional[str] = Field(default=None, alias="DATABASE_URL")
     
     postgres_driver: str = Field(default="postgresql+psycopg2", alias="POSTGRES_DRIVER")
-    postgres_user: str = Field(default="postgres", alias="POSTGRES_USER")
+    postgres_user: str = Field(default="ric_datbrdg", alias="POSTGRES_USER")
     postgres_password: str = Field(default="Ricago@312", alias="POSTGRES_PASSWORD")
     postgres_host: str = Field(default="localhost", alias="POSTGRES_HOST")
     postgres_port: int = Field(default=5432, alias="POSTGRES_PORT")
@@ -16,10 +16,12 @@ class DatabaseSettings(BaseSettings):
     model_config = SettingsConfigDict(extra="ignore", env_file=".env", env_file_encoding="utf-8")
 
     def get_db_url(self) -> str:
+        print(f"##### PostgreSQL connection URL (self URL) in settings.py file: {self.database_url} #####")
         if self.database_url:
             return self.database_url
         
         # Default to PostgreSQL
+        print(f"##### PostgreSQL connection URL (new URL) in setting.py file: {self.postgres_driver}://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db} #####")
         return f"{self.postgres_driver}://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
 
 class MailSettings(BaseSettings):
