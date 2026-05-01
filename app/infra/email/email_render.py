@@ -13,7 +13,7 @@ class EmailTemplateRender:
         TEMPLATE_DIR = Path(__file__).parent / "templates"
 
         #TEMPLATE_DIR = "/html"
-        print(f"Template Dir: ", TEMPLATE_DIR)
+        #print(f"Template Dir: ", TEMPLATE_DIR)
         
         self.templ_env = Environment(
             loader=FileSystemLoader(TEMPLATE_DIR),
@@ -23,7 +23,7 @@ class EmailTemplateRender:
     # Load JSON file once (recommended)
     def load_templates(self):
         json_file = Path("app/infra/email/templates/email_template_configs.json")
-        print(f"Template JSON file: ", json_file)
+        #print(f"Template JSON file: ", json_file)
         with open(json_file, "r", encoding="utf-8") as f:
             return json.load(f)
 

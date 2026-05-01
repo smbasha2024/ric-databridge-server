@@ -16,7 +16,7 @@ class TenantComplianceLib(BaseModel):
     purpose = Column(String(500), nullable=True)
     activity_id = Column(String(255), nullable=True)
     activity = Column(String(500), nullable=True)
-    riago_section_id = Column(String(255), nullable=True)
+    ricago_section_id = Column(String(255), nullable=True)
     frequency = Column(String(255), nullable=True)
     due_date = Column(String(255), nullable=True)
 

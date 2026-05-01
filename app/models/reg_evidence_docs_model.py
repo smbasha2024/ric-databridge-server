@@ -9,7 +9,9 @@ class RegEvidenceDoc(BaseModel):
 
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
     tenant_id = Column(String(255), nullable=False)
+    tenant_name = Column(String(255), nullable=True)
     app_id = Column(String(255), nullable=False)
+    c_name = Column(String(255), nullable=True)
     doc_id = Column(String(255), nullable=True)
     file_name = Column(String(255), nullable=True)
     file_type = Column(String(255), nullable=True)

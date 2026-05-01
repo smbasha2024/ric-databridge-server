@@ -24,28 +24,30 @@ async def getDataForCMSAutoClosure(request: Request=None, db: Session = Depends(
     x_api_key = request.state.api_key
     x_tenant_id = request.state.tenant_id
     x_app_id = request.state.app_id
-
+    
     if x_api_key and x_tenant_id and x_app_id:
         # validate the API key for the given app and client Id and then return the auth token (JWT)
         auth_service = AuthService(AuthRepository(db))
         if hasattr(request.state, "auth_type") and request.state.auth_type == "jwt":
             #key = await service.validate_api_key(x_api_key)
             valid_key = await auth_service.validate_api_key_by_client_app(x_api_key, x_tenant_id, x_app_id)
-
+            
             auth_session = await auth_service.validate_auth_token_by_client_app(x_tenant_id, x_app_id,request.state.token)
-
+            
             #DataBridge Service Calls
             databridge_service = DataBridgeService(DataBridgeRepo(db))
 
             #raw_body = await request.body()
             req_body = await request.json()
             req_body_data = req_body["data"]
+            
+            #print(f"Request Body Data: {req_body_data}")
 
             from pydantic import TypeAdapter
             adapter = TypeAdapter(List[CMSAutoCloseReq])
             cms_req = adapter.validate_python(req_body_data)
 
-            print(f"CMS AutoClose Request Body Payload: {cms_req}")
+            #print(f"CMS AutoClose Request Body Payload: {cms_req}")
             cms_auto_close_items = await databridge_service.getComplianceItemsForAutoClosure(x_tenant_id, x_app_id, cms_req)
 
             result = {
@@ -92,7 +94,7 @@ async def saveDocumentsForID(request: Request, doc_id: str = Form(...), file_nam
             adapter = TypeAdapter(RegEvidenceDocDTO)
             saveDocReq = adapter.validate_python(payload)
 
-            print(f"Save Documents Body Payload: {saveDocReq} : File Content {file_stream}")
+            #print(f"Save Documents Body Payload: {saveDocReq} : File Content {file_stream}")
 
             compl_docs:RegEvidenceDocDTO = await databridge_service.saveDocumentsForID(x_tenant_id, x_app_id, saveDocReq, file_stream)
 
@@ -144,8 +146,8 @@ async def getDocumentsForID(request: Request = None, db: Session = Depends(get_d
             req_body = await request.json()
             req_body_data = req_body["data"]
 
-            print(f"CMS AutoClose Request Body Payload: {req_body_data}")
-            compDoc = await databridge_service.getDocumentsForID(x_tenant_id, x_app_id, req_body_data["DocumentID"], req_body_data["Clientname"], req_body_data["ClientURL"])
+            #print(f"CMS AutoClose Request Body Payload: {req_body_data}")
+            compDoc = await databridge_service.getDocumentsForID(x_tenant_id, x_app_id, req_body_data["DocumentID"], req_body_data["CName"], req_body_data["ClientURL"])
 
             if compDoc:
                 compl_docs =  {

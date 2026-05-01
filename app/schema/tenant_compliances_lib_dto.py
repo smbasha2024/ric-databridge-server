@@ -12,7 +12,7 @@ class TenantComplianceLib(BaseModel):
     purpose: str
     activity_id: str
     activity: str
-    riago_section_id: str
+    ricago_section_id: str
     frequency: str
     due_date: str
     created_at: datetime

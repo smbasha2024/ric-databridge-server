@@ -66,7 +66,7 @@ async def getAppAuthToken(request: Request = None, db: Session = Depends(get_db)
                 "expires_at": auth_session.expires_at if auth_session else None     
             }
 
-            print(f"After API Key Validation:  {result}")
+            #print(f"After API Key Validation:  {result}")
 
             return result
     else:
@@ -98,7 +98,7 @@ async def testAuthToken(request: Request = None, db: Session = Depends(get_db)):
                 "token_expiry": request.state.token_expiry
             }
 
-            print(f"After API Key Validation:  {result}")
+            #print(f"After API Key Validation:  {result}")
 
             return result
     else:

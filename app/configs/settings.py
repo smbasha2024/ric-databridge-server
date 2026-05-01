@@ -16,12 +16,12 @@ class DatabaseSettings(BaseSettings):
     model_config = SettingsConfigDict(extra="ignore", env_file=".env", env_file_encoding="utf-8")
 
     def get_db_url(self) -> str:
-        print(f"##### PostgreSQL connection URL (self URL) in settings.py file: {self.database_url} #####")
+        #print(f"##### PostgreSQL connection URL (self URL) in settings.py file: {self.database_url} #####")
         if self.database_url:
             return self.database_url
         
         # Default to PostgreSQL
-        print(f"##### PostgreSQL connection URL (new URL) in setting.py file: {self.postgres_driver}://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db} #####")
+        #print(f"##### PostgreSQL connection URL (new URL) in setting.py file: {self.postgres_driver}://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db} #####")
         return f"{self.postgres_driver}://{self.postgres_user}:{self.postgres_password}@{self.postgres_host}:{self.postgres_port}/{self.postgres_db}"
 
 class MailSettings(BaseSettings):

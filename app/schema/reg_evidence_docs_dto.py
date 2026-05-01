@@ -5,6 +5,8 @@ from typing import Optional
 
 class RegEvidenceDoc(BaseModel):
     id: Optional[str]= None
+    tenant_name: Optional[str]= None
+    c_name: Optional[str]= None
     doc_id: Optional[str]= None
     file_name: Optional[str]= None
     file_type: Optional[str]= None

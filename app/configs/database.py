@@ -21,7 +21,7 @@ else:
         database=settings.db.postgres_db
     )
 
-    print(f"##### PostgreSQL connection URL in database.py file: {connection_url} #####")
+    #print(f"##### PostgreSQL connection URL in database.py file: {connection_url} #####")
 
 # Create engine with connection pooling
 engine = create_engine(

@@ -12,6 +12,10 @@ class CMSCustomer(BaseModel):
     app_id = Column(String(255), nullable=True)
     tenant_name= Column(String(255), nullable=True)
     tenant_url = Column(String(500), nullable=True)
+
+    c_name= Column(String(500), nullable=True)
+    client_name= Column(String(500), nullable=True)
+    client_url= Column(String(500), nullable=True)
     credentials = Column(String(2000), nullable=True)           # JSON string
     credential_managers = Column(String(2000), nullable=True)   # JSON string
 

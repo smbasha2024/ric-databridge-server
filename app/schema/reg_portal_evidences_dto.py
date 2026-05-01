@@ -8,8 +8,9 @@ class RegPortalEvidence(BaseModel):
     tenant_id: Optional[str]= None
     tenant_name: Optional[str]= None
     app_id: Optional[str]= None
+    c_name: Optional[str]= None
     activity_id: Optional[str]= None
-    riago_section_id: Optional[str]= None
+    ricago_section_id: Optional[str]= None
     financial_year: Optional[str]= None
     applicable_month: Optional[str]= None
     Uid_to_consider: Optional[str]= None

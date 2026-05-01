@@ -37,6 +37,7 @@ class DataBridgeService:
                 )
 
             data = response.json()
+            #print(f"########### Tenant Clients: {data}")
 
             return data
 
@@ -81,8 +82,12 @@ class DataBridgeService:
               id=record_id,
               tenant_id=tenant_id,
               app_id=app_id,
-              tenant_name=item.get("Clientname", ""),
-              tenant_url=item.get("ClientUrl", ""),
+              tenant_name=item.get("tenanat_name", ""),
+              tenant_url=item.get("tenanat_url", ""),
+
+              c_name=item.get("CName", ""),
+              client_name=item.get("Clientname", ""),
+              client_url=item.get("ClientUrl", ""),
               credentials=credentials_json,
               credential_managers=credential_managers_json,
               created_at=now_str,
@@ -110,11 +115,12 @@ class DataBridgeService:
             complianceItem = RegPortalEvidenceDTO(
                 tenant_id=tenant_id,
                 app_id=app_id,
-                tenant_name=item.Clientname,
+                #tenant_name=item.Clientname,
+                tenant_name=item.CName,
                 tenant_url=item.ClientURL,
-                financial_year=str(item.FicalYear),
+                financial_year=str(item.FiscalYear),
                 applicable_month=str(item.ApplicableMonth),
-                riago_section_id=str(item.RicagoSecionID)
+                ricago_section_id=str(item.RicagoSectionID)
             )
             complianceItems.append(complianceItem)
         
@@ -128,7 +134,7 @@ class DataBridgeService:
                 "Clientname": activity.tenant_name,
                 "FiscalYear": activity.financial_year,
                 "ApplicableMonth": activity.applicable_month,
-                "RicagoSectionId": activity.riago_section_id,
+                "RicagoSectionId": activity.ricago_section_id,
                 "UniqueIdentifierToConsider": activity.uid_to_consider,
                 "OrgUniqueIdentifier": json.loads(activity.org_uid) if activity.org_uid else {"DisplayName":"","Value":""},
                 "LocationUniqueIdentifier": json.loads(activity.loc_uid) if activity.loc_uid else {"DisplayName":"","Value":""},
@@ -143,9 +149,11 @@ class DataBridgeService:
     async def getComplianceItemsForAutoClosure(self,tenant_id: str, app_id: str, compl_items_req: List[CMSAutoCloseReq]):
 
         complianceItemsForCMS = self.mapCMSAutoCloseReqToDtBrdgActivities(tenant_id, app_id, compl_items_req)
-
+        
         complianceActivities = await self.repo.getComplianceItemsForAutoClosure(tenant_id, app_id, complianceItemsForCMS)
+        
         cms_auto_close_items = self.mapDtBrdgActivitiesToCMSAutoCloseResp(complianceActivities)
+        
 
         return cms_auto_close_items
     
@@ -157,217 +165,7 @@ class DataBridgeService:
         #print(f"######## works - service")
         return saved_doc
 
-    async def getDocumentsForID(self, tenant_id: str, app_id: str, doc_id: str, tenant_name: str, tenant_url: str)-> RegEvidenceDocDTO:
-        document = await self.repo.getDocumentsForID(tenant_id, app_id, doc_id,tenant_name, tenant_url)
+    async def getDocumentsForID(self, tenant_id: str, app_id: str, doc_id: str, c_name: str, tenant_url: str)-> RegEvidenceDocDTO:
+        document = await self.repo.getDocumentsForID(tenant_id, app_id, doc_id,c_name, tenant_url)
         return document
-        
     
-    """
-    [
-                                    {
-                                        "FiscalYear": "2026",
-                                        "ApplicableMonth": "4",
-                                        "RicagoSectionId": "140282",
-                                        "UniqueIdentifierToConsider": "ORG",
-                                        "OrgUniqueIdentifier": {
-                                            "DisplayName": "PAN",
-                                            "Value": "CHAPA1234K"
-                                        },
-                                        "LocationUniqueIdentifier": {
-                                            "DisplayName": "",
-                                            "Value": ""
-                                        },
-                                        "ClosureDate": "10-May-2025",
-                                        "DataBridgeDocID": "172363",
-                                        "Comments": "Filed on 10th may 2025"
-                                    },
-                                    {
-                                        "FiscalYear": "2026",
-                                        "ApplicableMonth": "5",
-                                        "RicagoSectionId": "140282",
-                                        "UniqueIdentifierToConsider": "LOCATION", 
-                                        "OrgUniqueIdentifier": {
-                                            "DisplayName": "",
-                                            "Value": ""
-                                        },
-                                        "LocationUniqueIdentifier": {
-                                            "DisplayName": "GSTIN",
-                                            "Value": "CHAPA1234K1234"
-
-                                        },
-                                        "ClosureDate": "10-Jun-2025",
-                                        "DataBridgeDocID": "172364",
-                                        "Comments": "Filed on 10th June 2025"
-                                    }
-                                ]
-    """
-
-"""
-    INSERT INTO reg_portal_evidences (
-    id,
-    tenant_id,
-    tenant_name,
-    app_id,
-    activity_id,
-    riago_section_id,
-    financial_year,
-    applicable_month,
-    uid_to_consider,
-    org_uid,
-    loc_uid,
-    closure_date,
-    doc_id,
-    comments,
-    created_at,
-    updated_at,
-    created_by,
-    updated_by
-)
-VALUES
-(
-    gen_random_uuid(),
-    'CSPL',
-    'CSPL',
-    'CMS',
-    '1',
-    '140282',
-    '2026',
-    '4',
-    'ORG',
-    '{"DisplayName":"PAN","Value":"CHAPA1234K"}',
-    '{"DisplayName":"","Value":""}',
-    '10-May-2025',
-    '172363',
-    'Filed on 10th may 2025',
-    NOW(),
-    NOW(),
-    'CMS',
-    'CMS'
-);
-
-INSERT INTO reg_portal_evidences (
-    id,
-    tenant_id,
-    tenant_name,
-    app_id,
-    activity_id,
-    riago_section_id,
-    financial_year,
-    applicable_month,
-    uid_to_consider,
-    org_uid,
-    loc_uid,
-    closure_date,
-    doc_id,
-    comments,
-    created_at,
-    updated_at,
-    created_by,
-    updated_by
-)
-VALUES
-(
-    gen_random_uuid(),
-    'CSPL',
-    'CMS-Test',
-    'CMS',
-    '1',
-    '140282',
-    '2026',
-    '4',
-    'ORG',
-    '{"DisplayName":"PAN","Value":"CHAPA1234K"}',
-    '{"DisplayName":"","Value":""}',
-    '10-May-2025',
-    '172364',
-    'Filed on 10th may 2025',
-    NOW(),
-    NOW(),
-    'CMS',
-    'CMS'
-);
-
-INSERT INTO reg_portal_evidences (
-    id,
-    tenant_id,
-    tenant_name,
-    app_id,
-    activity_id,
-    riago_section_id,
-    financial_year,
-    applicable_month,
-    uid_to_consider,
-    org_uid,
-    loc_uid,
-    closure_date,
-    doc_id,
-    comments,
-    created_at,
-    updated_at,
-    created_by,
-    updated_by
-)
-VALUES
-(
-    gen_random_uuid(),
-    'CSPL',
-    'CSPL',
-    'CMS',
-    '2',
-    '140283',
-    '2026',
-    '5',
-    'LOCATION',
-    '{"DisplayName":"","Value":""}',
-    '{"DisplayName":"GSTIN","Value":"CHAPA1234K1234"}',
-    '10-May-2026',
-    '172365',
-    'Filed on 10th June 2026',
-    NOW(),
-    NOW(),
-    'CMS',
-    'CMS'
-);
-
-INSERT INTO reg_portal_evidences (
-    id,
-    tenant_id,
-    tenant_name,
-    app_id,
-    activity_id,
-    riago_section_id,
-    financial_year,
-    applicable_month,
-    uid_to_consider,
-    org_uid,
-    loc_uid,
-    closure_date,
-    doc_id,
-    comments,
-    created_at,
-    updated_at,
-    created_by,
-    updated_by
-)
-VALUES
-(
-    gen_random_uuid(),
-    'CSPL',
-    'CMS-Test-Balaji',
-    'CMS',
-    '2',
-    '140283',
-    '2026',
-    '5',
-    'LOCATION',
-    '{"DisplayName":"","Value":""}',
-    '{"DisplayName":"GSTIN","Value":"CHAPA1234K1234"}',
-    '10-May-2026',
-    '172366',
-    'Filed on 10th June 2026',
-    NOW(),
-    NOW(),
-    'CMS',
-    'CMS'
-);
-"""

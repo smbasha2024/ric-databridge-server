@@ -8,6 +8,10 @@ class CMSCustomer(BaseModel):
     app_id: str
     tenant_name: str
     tenant_url: str
+
+    c_name: str
+    client_name: str
+    client_url: str
     credentials: str        # JSON string
     credential_managers: str  # JSON string
     created_at: datetime

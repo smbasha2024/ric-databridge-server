@@ -7,7 +7,8 @@ from datetime import datetime
 class CMSAutoCloseReq(BaseModel):
     Clientname: str
     ClientURL: str
-    FicalYear: int
+    CName: str
+    FiscalYear: int
     ApplicableMonth: int
-    RicagoSecionID: int
+    RicagoSectionID: int
 #------------------------------------------------------------------------------
