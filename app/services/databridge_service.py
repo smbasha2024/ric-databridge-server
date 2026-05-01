@@ -117,6 +117,7 @@ class DataBridgeService:
                 app_id=app_id,
                 #tenant_name=item.Clientname,
                 tenant_name=item.CName,
+                c_name=item.CName,
                 tenant_url=item.ClientURL,
                 financial_year=str(item.FiscalYear),
                 applicable_month=str(item.ApplicableMonth),
@@ -131,6 +132,7 @@ class DataBridgeService:
 
         for activity in compliance_activities:
             item = {
+                "CName": activity.c_name,
                 "Clientname": activity.tenant_name,
                 "FiscalYear": activity.financial_year,
                 "ApplicableMonth": activity.applicable_month,

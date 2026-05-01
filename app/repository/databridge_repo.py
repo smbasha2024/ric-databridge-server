@@ -99,9 +99,12 @@ class DataBridgeRepo:
 
         Returns a flat list of all matching RegPortalEvidence records.
         """
+
+        #print(f"Input activity items for compliance check: {activity_items}")
+        
         if not activity_items:
             return []
-
+        
         # Build OR conditions: match any of the input combinations
         conditions = []
         for item in activity_items:
@@ -127,49 +130,70 @@ class DataBridgeRepo:
         #print(f"SQL Statement to get the Compliances for Closure... {stmt}")
 
         # Log the compiled SQL (useful for debugging)
-        compiled = stmt.compile(compile_kwargs={"literal_binds": True})
-        logger.info(f"SQL Query: {compiled}")
+        try:
+            compiled = stmt.compile(compile_kwargs={"literal_binds": True})
+            logger.info(f"SQL Query: {compiled}")
 
-        result = self.db.execute(stmt)
-        rows = result.scalars().all()
-        logger.info(f"Number of rows returned: {len(rows)}")
+            result = self.db.execute(stmt)
+            rows = result.scalars().all()
+            logger.info(f"Number of rows returned: {len(rows)}")
+        except Exception as e:
+            logger.error(f"Error executing query: {e}")
+            import traceback
+            traceback.print_exc()
+            print("ERROR HERE:", str(e))
+            raise
         
         return rows
     
-    async def saveDocumentsForID(self, tenant_id: str, app_id: str, evidence: RegPortalEvidenceDTO, file_bytes):
+    async def saveDocumentsForID(self, tenant_id: str, app_id: str, evidence: RegEvidenceDocDTO, file_bytes):
+        #print(f"In Repo - saveDocumentsForID with tenant_id: {tenant_id}, app_id: {app_id}, evidence: {evidence}")
+        try:
+            existing = self.db.execute(
+            select(RegEvidenceDocModel).where(
+                RegEvidenceDocModel.doc_id == evidence.doc_id,
+                RegEvidenceDocModel.tenant_id == tenant_id,
+                RegEvidenceDocModel.app_id == app_id,
+                RegEvidenceDocModel.c_name == evidence.c_name
+            )).scalar_one_or_none()
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            print("ERROR HERE:", str(e))
+            raise
 
-        existing = self.db.execute(
-        select(RegEvidenceDocModel).where(
-            RegEvidenceDocModel.doc_id == evidence.doc_id,
-            RegEvidenceDocModel.tenant_id == tenant_id,
-            RegEvidenceDocModel.app_id == app_id
-        )).scalar_one_or_none()
-
-        #print(f"existing document for doc_id {existing.doc_id}, tenant_id {existing.tenant_id}, app_id {existing.app_id}")
+        #print(f"existing document for doc_id {existing}, tenant_id {tenant_id}, app_id {app_id}")
 
         if existing:
             return existing
-    
-        saved_evidence = RegEvidenceDocModel(
-            tenant_id=tenant_id,
-            app_id=app_id,
-            c_name=evidence.c_name,
-            doc_id=evidence.doc_id,
-            file_name=evidence.file_name,
-            file_type=evidence.file_type,
-            comments=evidence.comments,
-            file_stream=file_bytes,
 
-            created_at=datetime.now(timezone.utc),
-            updated_at=datetime.now(timezone.utc),
-            created_by="system",
-            updated_by="system"
-        )
+        try:
+            saved_evidence = RegEvidenceDocModel(
+                tenant_id=tenant_id,
+                app_id=app_id,
+                c_name=evidence.c_name,
+                doc_id=evidence.doc_id,
+                file_name=evidence.file_name,
+                file_type=evidence.file_type,
+                comments=evidence.comments,
+                file_stream=file_bytes,
 
-        self.db.add(saved_evidence)
-        self.db.commit()
-        self.db.refresh(saved_evidence)
-        #print(f"######## works - repo")
+                created_at=datetime.now(timezone.utc),
+                updated_at=datetime.now(timezone.utc),
+                created_by="system",
+                updated_by="system"
+            )
+
+            self.db.add(saved_evidence)
+            self.db.commit()
+            self.db.refresh(saved_evidence)
+            #print(f"######## works - repo")
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            print("ERROR HERE:", str(e))
+            raise
+
         return saved_evidence
     
     async def getDocumentsForID(self, tenant_id: str, app_id: str, doc_id: str, c_name: str, tenant_url: str):

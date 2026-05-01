@@ -43,9 +43,13 @@ async def getDataForCMSAutoClosure(request: Request=None, db: Session = Depends(
             
             #print(f"Request Body Data: {req_body_data}")
 
-            from pydantic import TypeAdapter
-            adapter = TypeAdapter(List[CMSAutoCloseReq])
-            cms_req = adapter.validate_python(req_body_data)
+            try:
+                from pydantic import TypeAdapter
+                adapter = TypeAdapter(List[CMSAutoCloseReq])
+                cms_req = adapter.validate_python(req_body_data)
+            except Exception as e:
+                logger.error(f"Error parsing request body: {str(e)}")
+                raise HTTPException(status_code=400, detail=f"Invalid request body format: {str(e)}")
 
             #print(f"CMS AutoClose Request Body Payload: {cms_req}")
             cms_auto_close_items = await databridge_service.getComplianceItemsForAutoClosure(x_tenant_id, x_app_id, cms_req)
@@ -65,7 +69,7 @@ async def getDataForCMSAutoClosure(request: Request=None, db: Session = Depends(
         
 
 @databridge_router.post("/SaveDocumentsForID")
-async def saveDocumentsForID(request: Request, doc_id: str = Form(...), file_name: str = Form(...), file_type: str = Form(...), comments: str = Form(...), file_stream: UploadFile = File(...), db: Session = Depends(get_db)):
+async def saveDocumentsForID(request: Request, doc_id: str = Form(...), file_name: str = Form(...), file_type: str = Form(...), comments: str = Form(...), c_name: str = Form(...), file_stream: UploadFile = File(...), db: Session = Depends(get_db)):
     
     x_api_key = request.state.api_key
     x_tenant_id = request.state.tenant_id
@@ -87,6 +91,7 @@ async def saveDocumentsForID(request: Request, doc_id: str = Form(...), file_nam
                 "doc_id": doc_id,
                 "file_name": file_name,
                 "file_type": file_type,
+                "c_name": c_name,
                 "comments": comments
             }
 
@@ -94,7 +99,7 @@ async def saveDocumentsForID(request: Request, doc_id: str = Form(...), file_nam
             adapter = TypeAdapter(RegEvidenceDocDTO)
             saveDocReq = adapter.validate_python(payload)
 
-            #print(f"Save Documents Body Payload: {saveDocReq} : File Content {file_stream}")
+            print(f"Save Documents Body Payload: {saveDocReq} : File Content {file_stream}")
 
             compl_docs:RegEvidenceDocDTO = await databridge_service.saveDocumentsForID(x_tenant_id, x_app_id, saveDocReq, file_stream)
 
